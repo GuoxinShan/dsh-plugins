@@ -305,14 +305,27 @@ return {
       }
     }
 
-    async function getUsage(refresh) {
-      const defaultModel = ctx.get('agentDefaultModel')
-      if (defaultModel === undefined) {
-        throw new Error('agentDefaultModel 服务不可用，无法读取当前选中的模型')
+    async function getUsage(refresh, sessionIdArg) {
+      // 会话自己的模型：优先读该会话日志里的请求头（requestHeader），没有才回退全局默认
+      const sessions = ctx.get('sessions')
+      let selection = null
+      if (sessions !== undefined && sessionIdArg) {
+        try {
+          const session = sessions.get(sessionIdArg)
+          const header = session !== undefined ? session.requestHeader() : undefined
+          const cfg = header && header.config
+          if (cfg && cfg.provider && cfg.model) {
+            selection = { provider: String(cfg.provider), model: String(cfg.model) }
+          }
+        } catch (e) { selection = null }
       }
-      const selection = defaultModel.currentSelection()
-      if (!selection || !selection.provider || !selection.model) {
-        throw new Error('当前未选中模型（provider/model 缺失）')
+      const defaultModel = ctx.get('agentDefaultModel')
+      if (!selection && defaultModel !== undefined) {
+        const s = defaultModel.currentSelection()
+        if (s && s.provider && s.model) selection = { provider: s.provider, model: s.model }
+      }
+      if (!selection) {
+        throw new Error('无法确定当前会话的模型（会话无请求记录且无默认选择）')
       }
       const key = selection.provider
       if (!refresh && usageCache[key] !== undefined && Date.now() - usageCache[key].ts < CACHE_TTL) {
@@ -370,9 +383,10 @@ return {
 
     harness.handle('quota/usage', async (args) => {
       const refresh = args && typeof args === 'object' && args.refresh === true
+      const sessionId = args && typeof args === 'object' && args.sessionId ? String(args.sessionId) : undefined
       const work = (async () => {
         try {
-          const data = await getUsage(refresh)
+          const data = await getUsage(refresh, sessionId)
           return { ok: true, data }
         } catch (error) {
           return { ok: false, error: error && error.message ? error.message : String(error) }

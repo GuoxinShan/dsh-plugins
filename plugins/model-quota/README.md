@@ -37,6 +37,7 @@ baseURL 未在 settings 显式配置时，按 provider id 从 pi-ai catalog 兜�
 
 ## 变更记录
 
+- 1.0.2：按**会话自身**的模型查余量（客户端传 sessionId，宿主读该会话 requestHeader 的 provider/model，不再用全局默认——修复换会话后显示上一个会话模型的问题）
 - 1.0.1：移除 `model_quota` 模型工具，纯 UI（用户不需要问 agent 查余量）
 - 1.0.0：归档当前版本（原 ocgo-1 动态插件 pkg-21 的最终形态；重命名 + 精简智谱显示 + TIME_LIMIT 字段修正后的稳定版）
 - 演进历史（pkg-1 ~ pkg-21）：OpenCode Go 专用 → DSH provider 扫描 → 当前选中模型 → 多 provider 接口自动匹配 → 缓存/看门狗/诊断

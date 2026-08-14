@@ -53,13 +53,13 @@ return {
       ])
     }
 
-    function loadAll(setState, refresh) {
+    function loadAll(setState, refresh, sessionId) {
       setState({ loading: true, phase: 'ping', data: null, error: null })
       raceTimeout(host.call('quota/ping', {}), 8000, 'ping 超时 (8s)：浏览器→宿主 RPC 未响应')
         .then((ping) => {
           if (!(ping && ping.ok)) throw new Error((ping && ping.error) || 'ping 失败')
           setState({ loading: true, phase: 'usage', data: null, error: null })
-          return raceTimeout(host.call('quota/usage', refresh ? { refresh: true } : {}), 45000, '余量查询超时 (45s)：宿主侧某阶段挂起')
+          return raceTimeout(host.call('quota/usage', { refresh: refresh ? true : undefined, sessionId }), 45000, '余量查询超时 (45s)：宿主侧某阶段挂起')
         })
         .then((res) => {
           if (res && res.ok && res.data) setState({ loading: false, phase: 'done', data: res.data, error: null })
@@ -126,10 +126,10 @@ return {
       return React.createElement('div', { className: 'ocgo-grid' }, cards)
     }
 
-    function useQuotaState() {
+    function useQuotaState(sessionId) {
       const [state, setState] = React.useState({ loading: true, phase: 'ping', data: null, error: null })
-      const load = (refresh) => { loadAll(setState, refresh) }
-      React.useEffect(() => { loadAll(setState, false) }, [])
+      const load = (refresh) => { loadAll(setState, refresh, sessionId) }
+      React.useEffect(() => { loadAll(setState, false, sessionId) }, [])
       return { state, load }
     }
 
@@ -149,10 +149,12 @@ return {
       }, '余量')
     }
 
-    function QuotaDropdown() {
+    function QuotaDropdown(props) {
       const [ui, setUi] = React.useState(quotaState)
       React.useEffect(() => subscribeQuota(setUi), [])
-      const quota = useQuotaState()
+      // root 作用域槽位：当前会话 id 从全局会话列表取
+      const currentSessionId = props.useSessions(s => s.current)
+      const quota = useQuotaState(currentSessionId)
       const rootRef = React.useRef(null)
       React.useEffect(() => {
         if (!ui.open) return
@@ -188,8 +190,8 @@ return {
         React.createElement(QuotaBody, { state: quota.state, load: quota.load }))
     }
 
-    function QuotaRunCard() {
-      const quota = useQuotaState()
+    function QuotaRunCard(props) {
+      const quota = useQuotaState(props.sessionId)
       const sub = quota.state.data && quota.state.data.selection
         ? quota.state.data.selection.provider + ' · ' + quota.state.data.selection.model + (quota.state.data.cached ? ' · 缓存' : '')
         : ''
@@ -203,7 +205,7 @@ return {
 
     slots.inject('tool.view.cordis', () => slots.register(
       { name: 'tool.view.cordis', key: 'self' },
-      () => React.createElement(QuotaRunCard, null),
+      (props) => React.createElement(QuotaRunCard, props),
     ))
     slots.inject('conversation.session.header.actions', () => slots.register(
       { name: 'conversation.session.header.actions', id: 'model-quota', order: 30, label: '余量' },
@@ -211,7 +213,7 @@ return {
     ))
     slots.inject('shell.overlay', () => slots.register(
       { name: 'shell.overlay', id: 'model-quota', order: 110 },
-      () => React.createElement(QuotaDropdown, null),
+      (props) => React.createElement(QuotaDropdown, props),
     ))
   },
 }
