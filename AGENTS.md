@@ -40,4 +40,5 @@ plugins/_template/       # 新插件模板，新建插件必须复制它
 ## 工具
 
 - 加载插件、调试插件、查看插件状态：在 DSH 会话用 `cordis_define` / `cordis_run` / `cordis_stop` / `cordis_inspect_*`。
-- 创建新插件：加载 `create-dsh-plugin` skill（`.agents/skills/create-dsh-plugin/SKILL.md`）。
+- **官方插件开发规范**：`.agents/skills/cordis-plugin-development/SKILL.md`（完整官方 skill，DSH 动态插件开发全流程，写插件前必须加载）。
+- 创建新插件：加载 `create-dsh-plugin` skill（仓库流程封装，官方规范以其上文件为准）。
