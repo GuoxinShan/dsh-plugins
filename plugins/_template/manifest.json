@@ -1,0 +1,14 @@
+{
+  "id": "your-plugin-id",
+  "idPrefix": "xxxx",
+  "name": "插件显示名",
+  "version": "0.1.0",
+  "purpose": "一句话说明这个插件做什么。",
+  "tool": "可选：注册的模型工具名",
+  "rpc": ["可选：注册的 RPC 方法名列表"],
+  "entrypoints": {
+    "可选": { "slot": "槽位名", "id": "注册 id" }
+  },
+  "requires": ["inject 里声明的服务名"],
+  "credentials": ["用到的凭据环境变量名"]
+}

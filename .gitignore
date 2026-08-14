@@ -1,0 +1,12 @@
+# 本地文件，不入库
+node_modules/
+*.log
+
+# 凭据/密钥
+.credentials.yaml
+.env
+*.key
+
+# 系统文件
+.DS_Store
+Thumbs.db

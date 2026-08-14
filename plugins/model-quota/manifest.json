@@ -1,0 +1,25 @@
+{
+  "id": "model-quota",
+  "idPrefix": "mdlq",
+  "name": "模型余量",
+  "version": "1.0.0",
+  "purpose": "查看当前会话选中模型的 provider 账户余量/套餐额度（OpenCode Go 窗口、智谱 Coding 套餐、Kimi For Coding、Moonshot/DeepSeek 余额、one-api billing）。",
+  "tool": "model_quota",
+  "rpc": ["quota/ping", "quota/usage"],
+  "entrypoints": {
+    "runCard": { "slot": "tool.view.cordis", "key": "self" },
+    "headerAction": { "slot": "conversation.session.header.actions", "id": "model-quota", "label": "余量", "order": 30 },
+    "overlay": { "slot": "shell.overlay", "id": "model-quota", "order": 110 }
+  },
+  "requires": ["timer", "llm", "settings", "credentials", "sandboxPolicy", "shell", "agentDefaultModel"],
+  "credentials": ["OPENCODE_GO_API_KEY", "ZAI_CODING_CN_API_KEY", "KIMI_CODING_API_KEY", "MOONSHOT_API_KEY", "DEEPSEEK_API_KEY"],
+  "dataSources": {
+    "opencode-go": { "match": "baseURL 含 opencode.ai/zen/go", "endpoint": "{base}/usage" },
+    "zhipu-coding": { "match": "baseURL 含 bigmodel.cn/api/coding 或 api.z.ai", "endpoint": "{host}/api/monitor/usage/quota/limit", "auth": "raw token（无 Bearer）" },
+    "kimi-coding": { "match": "baseURL 含 api.kimi.com/coding", "endpoint": "https://api.kimi.com/coding/v1/usages", "auth": "Bearer" },
+    "moonshot": { "match": "baseURL 含 api.moonshot.cn|ai", "endpoint": "https://api.moonshot.cn/v1/users/me/balance", "auth": "Bearer" },
+    "deepseek": { "match": "baseURL 含 api.deepseek.com", "endpoint": "https://api.deepseek.com/user/balance", "auth": "Bearer" },
+    "one-api": { "match": "其余 openai 兼容代理", "endpoint": "{base}/dashboard/billing/subscription + /usage", "auth": "Bearer" }
+  },
+  "cacheTtlMs": 300000
+}
