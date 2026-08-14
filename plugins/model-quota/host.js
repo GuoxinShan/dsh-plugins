@@ -383,23 +383,5 @@ return {
         t.timeout(50000).then(() => ({ ok: false, error: '查询超时 (50s): 宿主侧未完成，请检查宿主终端日志与网络' })),
       ])
     })
-
-    harness.registerTool(ctx, harness.defineTool({
-      name: 'model_quota',
-      description: '查询当前会话选中模型的 provider 账户余量（OpenCode Go 显示滚动/每周/每月窗口，智谱 Coding 套餐与 Kimi For Coding 显示限额窗口，Moonshot/DeepSeek 显示余额，one-api 类代理显示 billing）。结果缓存 5 分钟。',
-      parameters: {},
-      output: {
-        schema: { type: 'string' },
-        render(_args, value) { return [{ type: 'text', text: value }] },
-      },
-      async execute() {
-        try {
-          const data = await getUsage(false)
-          return formatSummary(data)
-        } catch (error) {
-          return '查询失败: ' + (error && error.message ? error.message : String(error))
-        }
-      },
-    }))
   },
 }

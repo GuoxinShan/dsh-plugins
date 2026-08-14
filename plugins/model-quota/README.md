@@ -6,7 +6,7 @@
 
 1. 在 DSH 的 Models 页面配置好 provider（apiKeyEnv 指向 DSH 凭据）
 2. 会话输入框选中该 provider 的任意模型
-3. 点标题栏 **"余量"** 按钮（按钮下方弹出卡片），或直接对我说"查余量"（`model_quota` 工具）
+3. 点标题栏 **"余量"** 按钮（按钮下方弹出卡片），纯 UI，不需要问 agent
 
 ## 支持的 provider 与数据源
 
@@ -33,9 +33,10 @@ baseURL 未在 settings 显式配置时，按 provider id 从 pi-ai catalog 兜�
 - `tool.view.cordis`（key `self`）：Run 卡片面板
 - `conversation.session.header.actions`（id `model-quota`）：标题栏"余量"按钮
 - `shell.overlay`（id `model-quota`）：锚定下拉卡片
-- 工具：`model_quota`；RPC：`quota/ping`、`quota/usage`
+- RPC：`quota/ping`、`quota/usage`（仅 UI 使用，不注册模型工具）
 
 ## 变更记录
 
+- 1.0.1：移除 `model_quota` 模型工具，纯 UI（用户不需要问 agent 查余量）
 - 1.0.0：归档当前版本（原 ocgo-1 动态插件 pkg-21 的最终形态；重命名 + 精简智谱显示 + TIME_LIMIT 字段修正后的稳定版）
 - 演进历史（pkg-1 ~ pkg-21）：OpenCode Go 专用 → DSH provider 扫描 → 当前选中模型 → 多 provider 接口自动匹配 → 缓存/看门狗/诊断
