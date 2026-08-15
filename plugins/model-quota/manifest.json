@@ -2,7 +2,7 @@
   "id": "model-quota",
   "idPrefix": "mdlq",
   "name": "模型余量",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "purpose": "纯 UI 查看当前会话选中模型的 provider 账户余量/套餐额度（OpenCode Go 窗口、智谱 Coding 套餐、Kimi For Coding、Moonshot/DeepSeek 余额、one-api billing）。",
   "rpc": ["quota/ping", "quota/usage"],
   "entrypoints": {

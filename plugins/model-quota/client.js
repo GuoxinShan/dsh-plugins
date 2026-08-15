@@ -53,13 +53,20 @@ return {
       ])
     }
 
+    function usageArgs(refresh, sessionId) {
+      const args = {}
+      if (refresh === true) args.refresh = true
+      if (sessionId !== undefined && sessionId !== null && sessionId !== '') args.sessionId = String(sessionId)
+      return args
+    }
+
     function loadAll(setState, refresh, sessionId) {
       setState({ loading: true, phase: 'ping', data: null, error: null })
       raceTimeout(host.call('quota/ping', {}), 8000, 'ping 超时 (8s)：浏览器→宿主 RPC 未响应')
         .then((ping) => {
           if (!(ping && ping.ok)) throw new Error((ping && ping.error) || 'ping 失败')
           setState({ loading: true, phase: 'usage', data: null, error: null })
-          return raceTimeout(host.call('quota/usage', { refresh: refresh ? true : undefined, sessionId }), 45000, '余量查询超时 (45s)：宿主侧某阶段挂起')
+          return raceTimeout(host.call('quota/usage', usageArgs(refresh, sessionId)), 45000, '余量查询超时 (45s)：宿主侧某阶段挂起')
         })
         .then((res) => {
           if (res && res.ok && res.data) setState({ loading: false, phase: 'done', data: res.data, error: null })
@@ -129,7 +136,7 @@ return {
     function useQuotaState(sessionId) {
       const [state, setState] = React.useState({ loading: true, phase: 'ping', data: null, error: null })
       const load = (refresh) => { loadAll(setState, refresh, sessionId) }
-      React.useEffect(() => { loadAll(setState, false, sessionId) }, [])
+      React.useEffect(() => { loadAll(setState, false, sessionId) }, [sessionId])
       return { state, load }
     }
 
